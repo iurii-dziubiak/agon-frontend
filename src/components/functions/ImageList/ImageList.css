@@ -1,0 +1,5 @@
+@use "@material/image-list/mdc-image-list";
+
+.mdc-image-list__item {
+    padding: 1em;
+}
