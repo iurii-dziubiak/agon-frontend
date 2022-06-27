@@ -1,40 +1,31 @@
-import mk from '../../../static/img/mk.jpg';
+import React, { useState, useEffect } from 'react';
 import './ImageList.css';
-import {dataHandler} from "../../../data/dataHandler.js";
+// import {dataHandler} from "../../../data/dataHandler.js";
+// const items = dataHandler.getGames();
 
 export function ImageList() {
-    const games = fetch("http://localhost:8088/api/games")
-        .then(response => {
-            if (response.status === 200) {
-                return  response.json();
-            } else {
-                throw new Error('Something went wrong on API server!');
-            }
-        });
+    const [data, setData] = useState([]);
 
+    useEffect(() => {
+        async function fetchData() {
+            await fetch('http://localhost:8088/api/games')
+                .then(response => response.json())
+                .then(result => setData(result));
+        }
+        fetchData();
+    }, []);
 
     return (
         <div>
-
             <ul className="mdc-image-list my-image-list">
-
-                <li className="mdc-image-list__item">
-                    <div className="">
-                        <img className="mdc-image-list__image" src='../../../static/img/mk.jpg' alt="description mk"/>
-                    </div>
-                    <div className="mdc-image-list__supporting">
-                        <span className="mdc-image-list__label">Text label</span>
-                    </div>
-                </li>
-
-                <li className="mdc-image-list__item">
-                    <div className="mdc-image-list__image-aspect-container">
-                        <img className="mdc-image-list__image" src={mk} alt="description mk"/>
-                    </div>
-                    <div className="mdc-image-list__supporting">
-                        <span className="mdc-image-list__label">Text label</span>
-                    </div>
-                </li>
+                {data.map((value, index) => {
+                    return <li key={index} className="mdc-image-list__item">
+                        <img className="mdc-image-list__image" src={process.env.PUBLIC_URL + '/img/mk.jpg'} alt="description mk"/>
+                        <div className="mdc-image-list__supporting">
+                            <span className="mdc-image-list__label">Text label</span>
+                        </div>
+                    </li>
+                })}
             </ul>
         </div>
     );

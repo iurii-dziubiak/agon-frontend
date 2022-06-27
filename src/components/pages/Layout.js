@@ -14,7 +14,8 @@ const Layout = () => {
 
     return (
         <main style={myStyle}>
-            <h1>LOGO</h1>{/*//TODO Header*/}
+            <h1>LOGO</h1>
+            {/*//TODO Header*/}
             <Outlet />
         </main>
     )
