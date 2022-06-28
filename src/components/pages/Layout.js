@@ -1,21 +1,21 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import Header from "./Header";
 
 const Layout = () => {
     const myStyle = {
         backgroundColor: "#232F34",
-        minHeight: "100vh",
-        display: "flex",
+        minHeight: "100vh"
+        // display: "flex"
         // flexDirection: "column",
         // alignItems: "center",
         // justifyContent: "center",
         // fontSize: "calc(10px + 2vmin)",
-        color: "white"
+        // color: "white"
     };
 
     return (
         <main style={myStyle}>
-            <h1>LOGO</h1>
-            {/*//TODO Header*/}
+            <Header />
             <Outlet />
         </main>
     )

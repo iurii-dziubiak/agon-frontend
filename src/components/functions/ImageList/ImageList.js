@@ -22,7 +22,7 @@ export function ImageList() {
                     return <li key={index} className="mdc-image-list__item">
                         <img className="mdc-image-list__image" src={process.env.PUBLIC_URL + '/img/mk.jpg'} alt="description mk"/>
                         <div className="mdc-image-list__supporting">
-                            <span className="mdc-image-list__label">Text label</span>
+                            <span className="mdc-image-list__label">{value.name}</span>
                         </div>
                     </li>
                 })}
