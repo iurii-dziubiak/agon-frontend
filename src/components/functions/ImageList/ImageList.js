@@ -20,10 +20,10 @@ export function ImageList() {
             <ul className="mdc-image-list my-image-list">
                 {data.map((value, index) => {
                     return <li key={index} className="mdc-image-list__item">
-                        <img className="mdc-image-list__image" src={process.env.PUBLIC_URL + '/img/mk.jpg'} alt="description mk"/>
-                        <div className="mdc-image-list__supporting">
-                            <span className="mdc-image-list__label">{value.name}</span>
-                        </div>
+                        <img className="mdc-image-list__image" src={process.env.PUBLIC_URL + '/img/' + value.image} alt="description mk"/>
+                        {/*<div className="mdc-image-list__supporting">*/}
+                        {/*    <span className="mdc-image-list__label">{value.name}</span>*/}
+                        {/*</div>*/}
                     </li>
                 })}
             </ul>
