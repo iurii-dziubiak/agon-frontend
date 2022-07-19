@@ -1,7 +1,7 @@
-import {GameList} from "../functions/GameList/GameList";
 import {Grid} from "@mui/material";
+import {TournamentForm} from "../functions/TournamentForm/TournamentForm";
 
-const Home = () => {
+const CreateTournament = () => {
     const gridStyle = {
         minHeight: "80vh"
     };
@@ -14,9 +14,9 @@ const Home = () => {
             justifyContent="center"
             alignItems="center"
         >
-            <GameList />
+            <TournamentForm />
         </Grid>
     );
 };
 
-export default Home;
+export default CreateTournament;
