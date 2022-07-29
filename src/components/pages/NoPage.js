@@ -1,5 +1,11 @@
 const NoPage = () => {
-    return <h1>404</h1>;
+    return (
+        <img
+            src={process.env.PUBLIC_URL + '/img/404.png'}
+            alt={"404"}
+            loading="lazy"
+        />
+    );
 };
 
 export default NoPage;

@@ -1,21 +1,8 @@
-import {GameList} from "../functions/ImageList/GameList";
-import {Grid} from "@mui/material";
+import {GameList} from "../functions/GameList/GameList";
 
 const Home = () => {
-    const gridStyle = {
-        minHeight: "80vh"
-    };
-
-    return (
-        <Grid
-            style={gridStyle}
-            container
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-        >
-            <GameList />
-        </Grid>
+   return (
+       <GameList />
     );
 };
 
