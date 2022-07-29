@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
-import {Container, CssBaseline, ThemeProvider} from "@mui/material";
+import {Container, CssBaseline} from "@mui/material";
+import {ThemeProvider} from "@mui/material/styles";
 import {theme} from "./theme"
 
 const Layout = () => {

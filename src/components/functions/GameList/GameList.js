@@ -3,15 +3,15 @@ import { useNavigate } from "react-router-dom";
 import {Card, CardActionArea, CardMedia, Grid} from "@mui/material";
 
 export function GameList() {
+    const gridStyle = {
+        minHeight: "85vh"
+    };
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        async function fetchData() {
-            await fetch('http://localhost:8088/api/games')
-                .then(response => response.json())
-                .then(result => setData(result));
-        }
-        fetchData();
+        fetch('http://localhost:8088/api/games')
+            .then(response => response.json())
+            .then(result => setData(result));
     }, []);
 
     const navigate = useNavigate();
@@ -21,9 +21,11 @@ export function GameList() {
 
     return (
         <Grid
+            style={gridStyle}
             container
             spacing={{ xs: 2, md: 3 }}
             columns={{ xs: 4, sm: 9, md: 12 }}
+            direction="row"
             justifyContent="center"
             alignItems="center">
             {data.map((value, index) => (
