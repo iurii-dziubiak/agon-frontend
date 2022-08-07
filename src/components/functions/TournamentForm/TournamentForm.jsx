@@ -1,44 +1,51 @@
-import * as React from 'react';
+import { useState } from 'react';
 import {
     Box, Button,
     Grid,
     MenuItem
 } from '@mui/material';
 import {TextField} from "@mui/material";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const gridStyle = {
     minHeight: "85vh"
+};
+const inputProps = {
+    style: { color: 'black' }
 };
 
 const sizes = [4,8,16];
 const initValues = {
     title: '',
     game: 'Chess',
-    players: []
+    players: [...Array(4).fill("")],
 }
-let tempPlayers = []
 
 export function TournamentForm() {
-    const [size, setSize] = React.useState(4);
-    const [tournament, setTournament] = React.useState(initValues);
+    const [size, setSize] = useState(4);
+    const [tournament, setTournament] = useState(initValues);
+    const navigate = useNavigate();
 
-    const handleTournamentSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleTournamentSizeChange = (event) => {
         setSize(event.target.value);
     };
     const handleTitleInputChange = e => {
         const {name, value} = e.target;
         setTournament({
             ...tournament,
-            [name]:value
+            [name]: value
         });
     };
     const handlePlayerInputChange = (e, index) => {
-        const {name, value} = e.target;
-        tempPlayers[index] = value;
+        const updatedValues = tournament.players.map((value, i) => {
+            if (i === index) {
+                return e.target.value
+            }
+            return value;
+        })
         setTournament({
             ...tournament,
-            [name]:tempPlayers
+            players: updatedValues
         });
     };
     const handleSubmit = e => {
@@ -54,13 +61,11 @@ export function TournamentForm() {
         };
         fetch('http://localhost:8088/api/tournament', requestOptions)
             .then(response => response.json())
-            .then(data => navigateToScheme(data))
+            .then(data => navigateToScheme(data.id))
             .catch(error => {
                 console.error('There was an error!', error);
             });
-        // navigateToScheme(1); // .then(data => navigateToScheme(2))
     };
-    const navigate = useNavigate();
     const navigateToScheme = (id) => {
         navigate('/tournament/'+id);
     };
@@ -90,6 +95,7 @@ export function TournamentForm() {
                         label="Tournament Title"
                         value={tournament.title}
                         onChange={handleTitleInputChange}
+                        inputProps={inputProps}
                     />
                 </Grid>
                 <Grid item xs={2}>
@@ -101,6 +107,7 @@ export function TournamentForm() {
                         color="secondary" focused
                         value={size}
                         onChange={handleTournamentSizeChange}
+                        SelectProps={inputProps}
                     >
                         {sizes.map((value) => (
                             <MenuItem key={value} value={value}>
@@ -113,17 +120,17 @@ export function TournamentForm() {
             <Grid container
                   spacing={{ xs: 1 }}
             >
-                {[...Array(size)].map((v,index) => (
+                {tournament.players.map((v, index) => (
                     <Grid item xs={3} key={index}>
                         <TextField
                             fullWidth
                             required
-                            id={"player"+index}
                             label="Player Name"
-                            color="secondary" focused
-                            name="players"
-                            value={tournament.players[index]}
-                            onBlur={(e) => handlePlayerInputChange(e, index)}
+                            color="secondary"
+                            name={`player-${index}`}
+                            value={v}
+                            onChange={(e) => handlePlayerInputChange(e, index)}
+                            inputProps={inputProps}
                         />
                     </Grid>
                 ))}
