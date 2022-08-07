@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import {Card, CardActionArea, CardMedia, Grid} from "@mui/material";
 
+const gridStyle = {
+    minHeight: "85vh"
+};
+
 export function GameList() {
-    const gridStyle = {
-        minHeight: "85vh"
-    };
     const [data, setData] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch('http://localhost:8088/api/games')
@@ -14,7 +16,6 @@ export function GameList() {
             .then(result => setData(result));
     }, []);
 
-    const navigate = useNavigate();
     const navigateToCreateTournament = () => {
         navigate('/tournament');
     };
