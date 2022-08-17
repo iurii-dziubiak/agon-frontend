@@ -89,7 +89,7 @@ export function TournamentForm() {
                     <TextField
                         fullWidth
                         required
-                        color="secondary" focused
+                        color="secondary"
                         id="trnmt-title"
                         name="title"
                         label="Tournament Title"
@@ -104,7 +104,7 @@ export function TournamentForm() {
                         id="select-participants"
                         select
                         label="Participants"
-                        color="secondary" focused
+                        color="secondary"
                         value={size}
                         onChange={handleTournamentSizeChange}
                         SelectProps={inputProps}
@@ -144,7 +144,6 @@ export function TournamentForm() {
                     <Button fullWidth type="submit" size="large" variant="contained" color="secondary">START!</Button>
                 </Grid>
             </Grid>
-
         </Box>
     );
 }
