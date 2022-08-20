@@ -1,9 +1,7 @@
-import {TournamentScheme} from "../functions/TournamentScheme/TournamentScheme";
+import { TournamentScheme } from "../functions/TournamentScheme/TournamentScheme";
 
 const Scheme = () => {
-    return (
-        <TournamentScheme />
-    );
+  return <TournamentScheme />;
 };
 
 export default Scheme;

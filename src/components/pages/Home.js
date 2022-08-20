@@ -1,9 +1,7 @@
-import {GameList} from "../functions/GameList/GameList";
+import { GameList } from "../functions/GameList/GameList";
 
 const Home = () => {
-   return (
-       <GameList />
-    );
+  return <GameList />;
 };
 
 export default Home;
