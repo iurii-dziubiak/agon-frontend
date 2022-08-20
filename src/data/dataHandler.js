@@ -1,27 +1,27 @@
 export let dataHandler = {
-    getGames: () => {
-        return apiGet("http://localhost:8088/api/games");
-    }
+  getGames: () => {
+    return apiGet("http://localhost:8088/api/games");
+  },
 };
 
 function apiGet(url) {
-    const result = [];
-    fetch(url, {
-        method: "GET",
+  const result = [];
+  fetch(url, {
+    method: "GET",
+  })
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error("Something went wrong on API server!");
+      }
     })
-        .then(response => {
-            if (response.status === 200) {
-                return response.json();
-            } else {
-                throw new Error('Something went wrong on API server!');
-            }
-        })
-        .then(data => {
-            for (const value of data) {
-                result.push(value);
-            }
-        });
-    return result;
+    .then((data) => {
+      for (const value of data) {
+        result.push(value);
+      }
+    });
+  return result;
 }
 
 // async function apiPost(url, payload) {

@@ -9,16 +9,16 @@ import Scheme from "./pages/Scheme";
 
 function App() {
   return (
-      <BrowserRouter>
-          <Routes>
-              <Route path="/" element={<Layout />}>
-                  <Route index element={<Home />} />
-                  <Route path="tournament" element={<Form />} />
-                  <Route path="tournament/:id" element={<Scheme />} />
-                  <Route path="*" element={<NoPage />} />
-              </Route>
-          </Routes>
-      </BrowserRouter>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="tournament" element={<Form />} />
+          <Route path="tournament/:id" element={<Scheme />} />
+          <Route path="*" element={<NoPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

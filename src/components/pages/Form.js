@@ -1,9 +1,7 @@
-import {TournamentForm} from "../functions/TournamentForm/TournamentForm";
+import { TournamentForm } from "../functions/TournamentForm/TournamentForm";
 
 const Form = () => {
-    return (
-        <TournamentForm />
-    );
+  return <TournamentForm />;
 };
 
 export default Form;

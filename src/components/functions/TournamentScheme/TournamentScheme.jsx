@@ -1,83 +1,178 @@
-import React, { useState, useEffect } from 'react';
-import {Box, Button, Grid, TextField} from '@mui/material';
-import {useNavigate, useParams} from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Divider,
+  Grid,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
 
-const gridStyle = {
-    minHeight: "85vh"
+// Example structure
+const games = [
+  {
+    players: [
+      { name: "elo", win: false },
+      { name: "test", win: false },
+    ],
+    played: false,
+  },
+  {
+    players: [
+      { name: "siema", win: false },
+      { name: "test1", win: false },
+    ],
+    played: false,
+  },
+];
+
+const initValues = {
+  title: "",
+  game: "Chess",
+  players: [...Array(4).fill({ name: "", win: false })],
 };
 
 export function TournamentScheme() {
-    const [data, setData] = useState();
-    const navigate = useNavigate();
-    const params = useParams();
+  const [data, setData] = useState(initValues);
+  const [secondRound, setSecondRound] = useState([]);
 
-    useEffect(() => {
-        fetch(`http://localhost:8088/api/tournament/${params.id}`)
-            .then(response => response.json())
-            .then(result => setData(result))
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
-    }, []);
-    console.log(data)
+  const navigate = useNavigate();
+  const params = useParams();
 
-    const handleSubmit = e => {
-        e.preventDefault();
-        /*const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                title: tournament.title,
-                game: tournament.game,
-                players: tournament.players
-            })
-        };
-        fetch('http://localhost:8088/api/tournament', requestOptions)
-            .then(response => response.json())
-            .then(data => navigateToScheme(data.id))
-            .catch(error => {
-                console.error('There was an error!', error);
-            });*/
-    };
-    /*const navigateToScheme = (id) => {
-        navigate('/tournament/'+id+'/result');
-    };*/
+  useEffect(() => {
+    fetch(`http://localhost:8088/api/tournament/${params.id}`)
+      .then((response) => response.json())
+      .then((result) => {
+        setData({
+          ...result,
+          players: result.players.map((p) => ({ name: p, win: false })),
+        });
+        // setSecondRound(Array(result.players.length / 2).fill(""));
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  }, []);
 
-    return (
-        <Box
-            component="form"
-            style={gridStyle}
-            sx={{ display: 'flex', flexWrap: 'wrap' }}
-            noValidate
-            autoComplete="off"
-            onSubmit={handleSubmit}
+  const handleSubmit = (e) => {
+    e.preventDefault();
+  };
+  /*
+                        const navigateToScheme = (id) => {
+                          navigate('/tournament/'+id+'/result');
+                        };
+                        */
+
+  return (
+    <Box
+      component="form"
+      sx={{ display: "flex", flexWrap: "wrap", marginTop: "3em" }}
+      noValidate
+      autoComplete="off"
+      onSubmit={handleSubmit}
+    >
+      <Grid container>
+        <Grid
+          container
+          item
+          xs={4}
+          direction="column"
+          justifyContent="center"
+          rowGap={{ xs: 2 }}
+          wrap="nowrap"
         >
+          {data.players.map((v, index) => (
+            <>
+              <Grid
+                item
+                xs={1}
+                key={index}
+                {...(index % 2 !== 0 &&
+                  index !== data.players.length - 1 && {
+                    style: { marginBottom: "3rem" },
+                  })}
+              >
+                <ButtonGroup variant="contained" aria-label="button group">
+                  <TextField
+                    fullWidth
+                    disabled
+                    label="Player"
+                    color="secondary"
+                    name={`player-${index}`}
+                    value={v.name}
+                  />
+                  <Button
+                    color="secondary"
+                    onClick={() => {
+                      setSecondRound((prevState) => {
+                        const list = [...prevState];
+                        list.push(v);
+                        return list;
+                      });
+                      setData({
+                        ...data,
+                        players: data.players.map((p, i) => {
+                          if (i === index) {
+                            return { ...p, win: true };
+                          }
+                          return p;
+                        }),
+                      });
+                    }}
+                    disabled={v.win}
+                  >
+                    W
+                  </Button>
+                </ButtonGroup>
+              </Grid>
+            </>
+          ))}
+        </Grid>
+        <Grid
+          container
+          item
+          xs={4}
+          direction="column"
+          justifyContent="center"
+          rowGap={{ xs: 2 }}
+        >
+          {secondRound.map((v, index) => (
             <Grid
-            style={gridStyle}
-            container
-            spacing={{ xs: 2, md: 3 }}
-            columns={{ xs: 4, sm: 9, md: 12 }}
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
+              item
+              xs={1}
+              key={index}
+              {...(index % 2 !== 0 &&
+                index !== data.players.length - 1 && {
+                  style: { marginBottom: "3rem" },
+                })}
             >
-                {/*{data.players.map((value, index) => (*/}
-                {/*    <Grid item xs={2} sm={3} md={3} key={index}>*/}
-                {/*        <TextField*/}
-                {/*            fullWidth*/}
-                {/*            disabled*/}
-                {/*            id={"player"+index}*/}
-                {/*            label="Player Name"*/}
-                {/*            color="secondary" focused*/}
-                {/*            name="players"*/}
-                {/*            // value={tournament.players[index]}*/}
-                {/*            // onBlur={(e) => handlePlayerInputChange(e, index)}*/}
-                {/*            // inputProps={inputProps}*/}
-                {/*        />*/}
-                {/*    </Grid>*/}
-                {/*))}*/}
+              <ButtonGroup variant="contained" aria-label="button group">
+                <TextField
+                  fullWidth
+                  disabled
+                  label="Player"
+                  color="secondary"
+                  name={`player-${index}`}
+                  value={v.name}
+                />
+                <Button color="secondary">W</Button>
+              </ButtonGroup>
             </Grid>
-            <Button type="submit" size="large" variant="contained" color="secondary">FINISH!</Button>
-        </Box>
-    )
+          ))}
+        </Grid>
+      </Grid>
+
+      <Button
+        type="submit"
+        variant="contained"
+        color="secondary"
+        sx={{ marginLeft: "50%" }}
+      >
+        SUBMIT
+      </Button>
+    </Box>
+  );
 }
