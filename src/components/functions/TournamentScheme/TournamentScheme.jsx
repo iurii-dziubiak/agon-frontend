@@ -1,56 +1,39 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Divider,
-  Grid,
-  MenuItem,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, ButtonGroup, Grid, TextField } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 
-// Example structure
-const games = [
-  {
-    players: [
-      { name: "elo", win: false },
-      { name: "test", win: false },
-    ],
-    played: false,
-  },
-  {
-    players: [
-      { name: "siema", win: false },
-      { name: "test1", win: false },
-    ],
-    played: false,
-  },
-];
-
-const initValues = {
+const initFirstRound = {
   title: "",
-  game: "Chess",
-  players: [...Array(4).fill({ name: "", win: false })],
+  game: "",
+  challenges: [
+    ...Array(2).fill({
+      rivals: [
+        { name: "FirstRoundRival", won: false },
+        { name: "FirstRoundRival", won: false },
+      ],
+      played: false,
+    }),
+  ],
+};
+const initSecondRound = {
+  challenges: [],
 };
 
 export function TournamentScheme() {
-  const [data, setData] = useState(initValues);
-  const [secondRound, setSecondRound] = useState([]);
+  const [firstRound, setFirstRound] = useState(initFirstRound);
+  const [secondRound, setSecondRound] = useState(initSecondRound);
+  const [thirdRound, setThirdRound] = useState([]);
 
   const navigate = useNavigate();
   const params = useParams();
+
+  console.log(firstRound);
 
   useEffect(() => {
     fetch(`http://localhost:8088/api/tournament/${params.id}`)
       .then((response) => response.json())
       .then((result) => {
-        setData({
-          ...result,
-          players: result.players.map((p) => ({ name: p, win: false })),
-        });
-        // setSecondRound(Array(result.players.length / 2).fill(""));
+        setFirstRound(result);
       })
       .catch((error) => {
         console.error("There was an error!", error);
@@ -61,10 +44,10 @@ export function TournamentScheme() {
     e.preventDefault();
   };
   /*
-                        const navigateToScheme = (id) => {
-                          navigate('/tournament/'+id+'/result');
-                        };
-                        */
+                                                                                            const navigateToScheme = (id) => {
+                                                                                              navigate('/tournament/'+id+'/result');
+                                                                                            };
+                                                                                            */
 
   return (
     <Box
@@ -84,45 +67,74 @@ export function TournamentScheme() {
           rowGap={{ xs: 2 }}
           wrap="nowrap"
         >
-          {data.players.map((v, index) => (
+          {firstRound.challenges.map((v, index) => (
             <>
-              <Grid
-                item
-                xs={1}
-                key={index}
-                {...(index % 2 !== 0 &&
-                  index !== data.players.length - 1 && {
-                    style: { marginBottom: "3rem" },
-                  })}
-              >
-                <ButtonGroup variant="contained" aria-label="button group">
+              <Grid item xs={1} key={"f" + index} sx={{ marginBottom: "3rem" }}>
+                <ButtonGroup
+                  variant="contained"
+                  aria-label="button group"
+                  disabled={v.played}
+                  sx={{ marginBottom: "0.75rem" }}
+                >
                   <TextField
                     fullWidth
                     disabled
                     label="Player"
                     color="secondary"
-                    name={`player-${index}`}
-                    value={v.name}
+                    value={v.rivals[0].name}
                   />
                   <Button
                     color="secondary"
                     onClick={() => {
-                      setSecondRound((prevState) => {
-                        const list = [...prevState];
-                        list.push(v);
-                        return list;
-                      });
-                      setData({
-                        ...data,
-                        players: data.players.map((p, i) => {
+                      // setSecondRound((prevState) => {
+                      //   const list = [...prevState];
+                      //   list.push(v);
+                      //   return list;
+                      // });
+                      setFirstRound({
+                        ...firstRound,
+                        challenges: firstRound.challenges.map((ch, i) => {
                           if (i === index) {
-                            return { ...p, win: true };
+                            return { ...ch, played: true };
                           }
-                          return p;
+                          return ch;
                         }),
                       });
                     }}
-                    disabled={v.win}
+                  >
+                    W
+                  </Button>
+                </ButtonGroup>
+                <ButtonGroup
+                  variant="contained"
+                  aria-label="button group"
+                  disabled={v.played}
+                >
+                  <TextField
+                    fullWidth
+                    disabled
+                    label="Player"
+                    color="secondary"
+                    value={v.rivals[1].name}
+                  />
+                  <Button
+                    color="secondary"
+                    onClick={() => {
+                      // setSecondRound((prevState) => {
+                      //   const list = [...prevState];
+                      //   list.push(v);
+                      //   return list;
+                      // });
+                      setFirstRound({
+                        ...firstRound,
+                        challenges: firstRound.challenges.map((ch, i) => {
+                          if (i === index) {
+                            return { ...ch, played: true };
+                          }
+                          return ch;
+                        }),
+                      });
+                    }}
                   >
                     W
                   </Button>
@@ -139,26 +151,40 @@ export function TournamentScheme() {
           justifyContent="center"
           rowGap={{ xs: 2 }}
         >
-          {secondRound.map((v, index) => (
-            <Grid
-              item
-              xs={1}
-              key={index}
-              {...(index % 2 !== 0 &&
-                index !== data.players.length - 1 && {
-                  style: { marginBottom: "3rem" },
-                })}
-            >
-              <ButtonGroup variant="contained" aria-label="button group">
+          {secondRound.challenges.map((v, index) => (
+            <Grid item xs={1} key={"s" + index}>
+              <ButtonGroup
+                variant="contained"
+                aria-label="button group"
+                disabled={v.played}
+                sx={{ marginBottom: "0.75rem" }}
+              >
                 <TextField
                   fullWidth
                   disabled
                   label="Player"
                   color="secondary"
-                  name={`player-${index}`}
-                  value={v.name}
+                  value={v.rivals[0].name}
                 />
-                <Button color="secondary">W</Button>
+                <Button color="secondary" onClick={() => {}}>
+                  W
+                </Button>
+              </ButtonGroup>
+              <ButtonGroup
+                variant="contained"
+                aria-label="button group"
+                disabled={v.played}
+              >
+                <TextField
+                  fullWidth
+                  disabled
+                  label="Player"
+                  color="secondary"
+                  value={v.rivals[1].name}
+                />
+                <Button color="secondary" onClick={() => {}}>
+                  W
+                </Button>
               </ButtonGroup>
             </Grid>
           ))}
