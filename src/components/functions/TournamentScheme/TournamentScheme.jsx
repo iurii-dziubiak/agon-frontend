@@ -42,13 +42,28 @@ export function TournamentScheme() {
     useEffect(() => {
         fetch(`http://localhost:8088/api/tournament/${params.id}`)
             .then((response) => response.json())
-            .then((result) => {
-                setFirstRound(result);
-            })
+            .then((result) => setFirstRound(result))
             .catch((error) => {
                 console.error("There was an error!", error);
             });
     }, []);
+
+    if (preparingListSR.rivals.length === 4) {
+        console.log("JUST IF");
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                rivals: preparingListSR.rivals,
+            }),
+        };
+        fetch("http://localhost:8088/api/second-round", requestOptions)
+            .then((response) => response.json())
+            .then((data) => setSecondRound(data))
+            .catch((error) => {
+                console.error("There was an error!", error);
+            });
+    }
 
     const handlePreparingListSR = (rival) => {
         setPreparingListSR((prevState) => {
@@ -58,7 +73,7 @@ export function TournamentScheme() {
         });
     };
 
-    const handleChallengePlayed = (index) => {
+    const handleChallengePlayedFR = (index) => {
         setFirstRound({
             ...firstRound,
             challenges: firstRound.challenges.map((value, i) => {
@@ -117,7 +132,7 @@ export function TournamentScheme() {
                                         color="secondary"
                                         onClick={() => {
                                             handlePreparingListSR(v.rivals[0]);
-                                            handleChallengePlayed(index);
+                                            handleChallengePlayedFR(index);
                                         }}
                                     >
                                         W
@@ -139,7 +154,7 @@ export function TournamentScheme() {
                                         color="secondary"
                                         onClick={() => {
                                             handlePreparingListSR(v.rivals[1]);
-                                            handleChallengePlayed(index);
+                                            handleChallengePlayedFR(index);
                                         }}
                                     >
                                         W
