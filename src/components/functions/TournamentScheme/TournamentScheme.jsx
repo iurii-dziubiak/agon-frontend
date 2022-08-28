@@ -19,15 +19,7 @@ const initPreparingListSR = {
     rivals: [],
 };
 const initSecondRound = {
-    challenges: [
-        {
-            rivals: [
-                { name: "SecondRoundRival1", won: false },
-                { name: "SecondRoundRival2", won: false },
-            ],
-            played: false,
-        },
-    ],
+    challenges: [],
 };
 
 export function TournamentScheme() {
@@ -48,7 +40,11 @@ export function TournamentScheme() {
             });
     }, []);
 
-    if (preparingListSR.rivals.length === 4) {
+    useEffect(() => {
+        console.log("USE_EFFECT");
+    });
+
+    if (preparingListSR.rivals.length === firstRound.challenges.length) {
         console.log("JUST IF");
         const requestOptions = {
             method: "POST",
@@ -59,11 +55,17 @@ export function TournamentScheme() {
         };
         fetch("http://localhost:8088/api/second-round", requestOptions)
             .then((response) => response.json())
-            .then((data) => setSecondRound(data))
+            .then((data) => {
+                setSecondRound(data);
+                setPreparingListSR({
+                    ...preparingListSR,
+                    rivals: [],
+                });
+            })
             .catch((error) => {
                 console.error("There was an error!", error);
             });
-    }
+    } else console.log("ELSE");
 
     const handlePreparingListSR = (rival) => {
         setPreparingListSR((prevState) => {
@@ -173,7 +175,12 @@ export function TournamentScheme() {
                     rowGap={{ xs: 2 }}
                 >
                     {secondRound.challenges.map((v, index) => (
-                        <Grid item xs={1} key={"s" + index}>
+                        <Grid
+                            item
+                            xs={1}
+                            key={"s" + index}
+                            sx={{ marginBottom: "3rem" }}
+                        >
                             <ButtonGroup
                                 variant="contained"
                                 aria-label="button group"
