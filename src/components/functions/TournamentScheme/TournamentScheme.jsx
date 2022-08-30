@@ -15,7 +15,7 @@ const initFirstRound = {
         }),
     ],
 };
-const initPreparingListSR = {
+const initPreparingList = {
     rivals: [],
 };
 const initSecondRound = {
@@ -24,8 +24,9 @@ const initSecondRound = {
 
 export function TournamentScheme() {
     const [firstRound, setFirstRound] = useState(initFirstRound);
-    const [preparingListSR, setPreparingListSR] = useState(initPreparingListSR);
+    const [preparingListSR, setPreparingListSR] = useState(initPreparingList);
     const [secondRound, setSecondRound] = useState(initSecondRound);
+    const [preparingListTR, setPreparingListTR] = useState(initPreparingList);
     const [thirdRound, setThirdRound] = useState([]);
 
     const navigate = useNavigate();
@@ -41,46 +42,42 @@ export function TournamentScheme() {
     }, []);
 
     useEffect(() => {
-        console.log("USE_EFFECT");
-    });
-
-    if (preparingListSR.rivals.length === firstRound.challenges.length) {
-        console.log("JUST IF");
-        const requestOptions = {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                rivals: preparingListSR.rivals,
-            }),
-        };
-        fetch("http://localhost:8088/api/second-round", requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                setSecondRound(data);
-                setPreparingListSR({
-                    ...preparingListSR,
-                    rivals: [],
+        if (preparingListSR.rivals.length === firstRound.challenges.length) {
+            const requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    rivals: preparingListSR.rivals,
+                }),
+            };
+            fetch("http://localhost:8088/api/second-round", requestOptions)
+                .then((response) => response.json())
+                .then((data) => {
+                    setSecondRound(data);
+                })
+                .catch((error) => {
+                    console.error("There was an error!", error);
                 });
-            })
-            .catch((error) => {
-                console.error("There was an error!", error);
-            });
-    } else console.log("ELSE");
+        }
+    }, [preparingListSR.rivals]);
 
     const handlePreparingListSR = (rival) => {
-        setPreparingListSR((prevState) => {
-            const obj = prevState;
-            obj.rivals.push(rival);
-            return obj;
-        });
+        setPreparingListSR((prevState) => ({
+            rivals: [...prevState.rivals, rival],
+        }));
     };
 
-    const handleChallengePlayedFR = (index) => {
+    const handleChallengePlayedFR = (index, name) => {
         setFirstRound({
             ...firstRound,
             challenges: firstRound.challenges.map((value, i) => {
                 if (i === index) {
-                    return { ...value, played: true };
+                    return {
+                        rivals: value.rivals.map((r) =>
+                            r.name === name ? { ...r, won: true } : r
+                        ),
+                        played: true,
+                    };
                 }
                 return value;
             }),
@@ -110,60 +107,45 @@ export function TournamentScheme() {
                     wrap="nowrap"
                 >
                     {firstRound.challenges.map((v, index) => (
-                        <>
-                            <Grid
-                                item
-                                xs={1}
-                                key={"f" + index}
-                                sx={{ marginBottom: "3rem" }}
-                            >
+                        <Grid
+                            item
+                            xs={1}
+                            key={index}
+                            sx={{ marginBottom: "3rem" }}
+                        >
+                            {v.rivals.map((r) => (
                                 <ButtonGroup
                                     variant="contained"
                                     aria-label="button group"
                                     disabled={v.played}
-                                    sx={{ marginBottom: "0.75rem" }}
+                                    sx={{
+                                        backgroundColor: r.won ? "green" : "",
+                                        opacity: r.won ? "0.2" : "1",
+                                        marginBottom: "0.75rem",
+                                    }}
                                 >
                                     <TextField
                                         fullWidth
                                         disabled
                                         label="Player"
                                         color="secondary"
-                                        value={v.rivals[0].name}
+                                        value={r.name}
                                     />
                                     <Button
                                         color="secondary"
                                         onClick={() => {
-                                            handlePreparingListSR(v.rivals[0]);
-                                            handleChallengePlayedFR(index);
+                                            handlePreparingListSR(r);
+                                            handleChallengePlayedFR(
+                                                index,
+                                                r.name
+                                            );
                                         }}
                                     >
                                         W
                                     </Button>
                                 </ButtonGroup>
-                                <ButtonGroup
-                                    variant="contained"
-                                    aria-label="button group"
-                                    disabled={v.played}
-                                >
-                                    <TextField
-                                        fullWidth
-                                        disabled
-                                        label="Player"
-                                        color="secondary"
-                                        value={v.rivals[1].name}
-                                    />
-                                    <Button
-                                        color="secondary"
-                                        onClick={() => {
-                                            handlePreparingListSR(v.rivals[1]);
-                                            handleChallengePlayedFR(index);
-                                        }}
-                                    >
-                                        W
-                                    </Button>
-                                </ButtonGroup>
-                            </Grid>
-                        </>
+                            ))}
+                        </Grid>
                     ))}
                 </Grid>
                 <Grid
@@ -181,39 +163,38 @@ export function TournamentScheme() {
                             key={"s" + index}
                             sx={{ marginBottom: "3rem" }}
                         >
-                            <ButtonGroup
-                                variant="contained"
-                                aria-label="button group"
-                                disabled={v.played}
-                                sx={{ marginBottom: "0.75rem" }}
-                            >
-                                <TextField
-                                    fullWidth
-                                    disabled
-                                    label="Player"
-                                    color="secondary"
-                                    value={v.rivals[0].name}
-                                />
-                                <Button color="secondary" onClick={() => {}}>
-                                    W
-                                </Button>
-                            </ButtonGroup>
-                            <ButtonGroup
-                                variant="contained"
-                                aria-label="button group"
-                                disabled={v.played}
-                            >
-                                <TextField
-                                    fullWidth
-                                    disabled
-                                    label="Player"
-                                    color="secondary"
-                                    value={v.rivals[1].name}
-                                />
-                                <Button color="secondary" onClick={() => {}}>
-                                    W
-                                </Button>
-                            </ButtonGroup>
+                            {v.rivals.map((r) => (
+                                <ButtonGroup
+                                    variant="contained"
+                                    aria-label="button group"
+                                    disabled={v.played}
+                                    sx={{
+                                        backgroundColor: r.won ? "green" : "",
+                                        opacity: r.won ? "0.2" : "1",
+                                        marginBottom: "0.75rem",
+                                    }}
+                                >
+                                    <TextField
+                                        fullWidth
+                                        disabled
+                                        label="Player"
+                                        color="secondary"
+                                        value={r.name}
+                                    />
+                                    <Button
+                                        color="secondary"
+                                        onClick={() => {
+                                            handlePreparingListTR(r);
+                                            handleChallengePlayedSR(
+                                                index,
+                                                r.name
+                                            );
+                                        }}
+                                    >
+                                        W
+                                    </Button>
+                                </ButtonGroup>
+                            ))}
                         </Grid>
                     ))}
                 </Grid>
