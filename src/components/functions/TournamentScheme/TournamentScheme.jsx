@@ -18,19 +18,21 @@ const initFirstRound = {
 const initPreparingList = {
     rivals: [],
 };
-const initSecondRound = {
+const initNextRound = {
     challenges: [],
 };
 
 export function TournamentScheme() {
     const [firstRound, setFirstRound] = useState(initFirstRound);
     const [preparingListSR, setPreparingListSR] = useState(initPreparingList);
-    const [secondRound, setSecondRound] = useState(initSecondRound);
+    const [secondRound, setSecondRound] = useState(initNextRound);
     const [preparingListTR, setPreparingListTR] = useState(initPreparingList);
-    const [thirdRound, setThirdRound] = useState([]);
+    const [thirdRound, setThirdRound] = useState(initNextRound);
 
     const navigate = useNavigate();
     const params = useParams();
+
+    console.log(preparingListTR);
 
     useEffect(() => {
         fetch(`http://localhost:8088/api/tournament/${params.id}`)
@@ -61,8 +63,38 @@ export function TournamentScheme() {
         }
     }, [preparingListSR.rivals]);
 
+    useEffect(() => {
+        if (preparingListTR.rivals.length === secondRound.challenges.length) {
+            if (preparingListTR.rivals.length === 2) {
+                //TODO create FINAL challenge here
+            } else {
+                const requestOptions = {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        rivals: preparingListTR.rivals,
+                    }),
+                };
+                fetch("http://localhost:8088/api/third-round", requestOptions)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        setThirdRound(data);
+                    })
+                    .catch((error) => {
+                        console.error("There was an error!", error);
+                    });
+            }
+        }
+    }, [preparingListTR.rivals]);
+
     const handlePreparingListSR = (rival) => {
         setPreparingListSR((prevState) => ({
+            rivals: [...prevState.rivals, rival],
+        }));
+    };
+
+    const handlePreparingListTR = (rival) => {
+        setPreparingListTR((prevState) => ({
             rivals: [...prevState.rivals, rival],
         }));
     };
@@ -71,6 +103,22 @@ export function TournamentScheme() {
         setFirstRound({
             ...firstRound,
             challenges: firstRound.challenges.map((value, i) => {
+                if (i === index) {
+                    return {
+                        rivals: value.rivals.map((r) =>
+                            r.name === name ? { ...r, won: true } : r
+                        ),
+                        played: true,
+                    };
+                }
+                return value;
+            }),
+        });
+    };
+
+    const handleChallengePlayedSR = (index, name) => {
+        setSecondRound({
+            challenges: secondRound.challenges.map((value, i) => {
                 if (i === index) {
                     return {
                         rivals: value.rivals.map((r) =>
@@ -113,8 +161,9 @@ export function TournamentScheme() {
                             key={index}
                             sx={{ marginBottom: "3rem" }}
                         >
-                            {v.rivals.map((r) => (
+                            {v.rivals.map((r, i) => (
                                 <ButtonGroup
+                                    key={i}
                                     variant="contained"
                                     aria-label="button group"
                                     disabled={v.played}
@@ -163,8 +212,9 @@ export function TournamentScheme() {
                             key={"s" + index}
                             sx={{ marginBottom: "3rem" }}
                         >
-                            {v.rivals.map((r) => (
+                            {v.rivals.map((r, i) => (
                                 <ButtonGroup
+                                    key={i}
                                     variant="contained"
                                     aria-label="button group"
                                     disabled={v.played}
@@ -189,6 +239,57 @@ export function TournamentScheme() {
                                                 index,
                                                 r.name
                                             );
+                                        }}
+                                    >
+                                        W
+                                    </Button>
+                                </ButtonGroup>
+                            ))}
+                        </Grid>
+                    ))}
+                </Grid>
+                <Grid
+                    container
+                    item
+                    xs={4}
+                    direction="column"
+                    justifyContent="center"
+                    rowGap={{ xs: 2 }}
+                >
+                    {thirdRound.challenges.map((v, index) => (
+                        <Grid
+                            item
+                            xs={1}
+                            key={"s" + index}
+                            sx={{ marginBottom: "3rem" }}
+                        >
+                            {v.rivals.map((r, i) => (
+                                <ButtonGroup
+                                    key={i}
+                                    variant="contained"
+                                    aria-label="button group"
+                                    disabled={v.played}
+                                    sx={{
+                                        backgroundColor: r.won ? "green" : "",
+                                        opacity: r.won ? "0.2" : "1",
+                                        marginBottom: "0.75rem",
+                                    }}
+                                >
+                                    <TextField
+                                        fullWidth
+                                        disabled
+                                        label="Player"
+                                        color="secondary"
+                                        value={r.name}
+                                    />
+                                    <Button
+                                        color="secondary"
+                                        onClick={() => {
+                                            // handlePreparingListTR(r);
+                                            // handleChallengePlayedSR(
+                                            //     index,
+                                            //     r.name
+                                            // );
                                         }}
                                     >
                                         W
