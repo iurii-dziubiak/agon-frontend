@@ -1,41 +1,56 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, ButtonGroup, Grid, TextField } from "@mui/material";
+import {
+    Box,
+    Button,
+    ButtonGroup,
+    Grid,
+    TextField,
+    Typography,
+} from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 
 const initFirstRound = {
-    title: "",
-    game: "",
     challenges: [
         ...Array(2).fill({
             rivals: [
-                { name: "FirstRoundRival1", won: false },
-                { name: "FirstRoundRival2", won: false },
+                { name: "FirstRoundRival1", won: false, lose: false },
+                { name: "FirstRoundRival2", won: false, lose: false },
             ],
             played: false,
         }),
     ],
 };
-const initPreparingList = {
-    rivals: [],
-};
+
 const initNextRound = {
     challenges: [],
 };
 
+const initPreparingList = {
+    rivals: [],
+};
+
+const initPodium = {
+    first: "null",
+    second: "null",
+    third: "null",
+};
+
 export function TournamentScheme() {
     const [firstRound, setFirstRound] = useState(initFirstRound);
-    const [preparingListSR, setPreparingListSR] = useState(initPreparingList);
+    const [secondRoundList, setSecondRoundList] = useState(initPreparingList);
     const [secondRound, setSecondRound] = useState(initNextRound);
-    const [preparingListTR, setPreparingListTR] = useState(initPreparingList);
+    const [thirdRoundList, setThirdRoundList] = useState(initPreparingList);
     const [thirdRound, setThirdRound] = useState(initNextRound);
-
+    const [smallFinalList, setSmallFinalList] = useState(initPreparingList);
+    const [smallFinalRound, setSmallFinalRound] = useState(initNextRound);
+    const [podiumList, setPodiumList] = useState(initPodium);
     const navigate = useNavigate();
     const params = useParams();
 
-    console.log(preparingListTR);
+    // console.log(podiumList);
 
     useEffect(() => {
-        fetch(`http://localhost:8088/api/tournament/${params.id}`)
+        fetch(`http://localhost:8088/api/ongoing/tournament/${params.id}`)
             .then((response) => response.json())
             .then((result) => setFirstRound(result))
             .catch((error) => {
@@ -44,15 +59,15 @@ export function TournamentScheme() {
     }, []);
 
     useEffect(() => {
-        if (preparingListSR.rivals.length === firstRound.challenges.length) {
+        if (secondRoundList.rivals.length === firstRound.challenges.length) {
             const requestOptions = {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    rivals: preparingListSR.rivals,
+                    rivals: secondRoundList.rivals,
                 }),
             };
-            fetch("http://localhost:8088/api/second-round", requestOptions)
+            fetch("http://localhost:8088/api/next-round", requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     setSecondRound(data);
@@ -61,52 +76,99 @@ export function TournamentScheme() {
                     console.error("There was an error!", error);
                 });
         }
-    }, [preparingListSR.rivals]);
+    }, [secondRoundList.rivals]);
 
     useEffect(() => {
-        if (preparingListTR.rivals.length === secondRound.challenges.length) {
-            if (preparingListTR.rivals.length === 2) {
-                //TODO create FINAL challenge here
-            } else {
-                const requestOptions = {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        rivals: preparingListTR.rivals,
-                    }),
-                };
-                fetch("http://localhost:8088/api/third-round", requestOptions)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        setThirdRound(data);
-                    })
-                    .catch((error) => {
-                        console.error("There was an error!", error);
-                    });
-            }
+        if (thirdRoundList.rivals.length === secondRound.challenges.length) {
+            handlePreparingListSmallFinal();
+            const requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    rivals: thirdRoundList.rivals,
+                }),
+            };
+            fetch("http://localhost:8088/api/next-round", requestOptions)
+                .then((response) => response.json())
+                .then((data) => {
+                    setThirdRound(data);
+                })
+                .catch((error) => {
+                    console.error("There was an error!", error);
+                });
         }
-    }, [preparingListTR.rivals]);
+    }, [thirdRoundList.rivals]);
+
+    useEffect(() => {
+        if (thirdRoundList.rivals.length === 2) {
+            setSmallFinalRound({
+                challenges: [
+                    {
+                        rivals: smallFinalList.rivals,
+                        played: false,
+                    },
+                ],
+            });
+        }
+    }, [smallFinalList.rivals]);
+
+    useEffect(() => {
+        if (podiumList.third !== "null" && podiumList.second !== "null") {
+            const requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    first: podiumList.first,
+                    second: podiumList.second,
+                    third: podiumList.third,
+                    id: params.id,
+                }),
+            };
+            fetch("http://localhost:8088/api/podium", requestOptions)
+                .then((response) => response.json())
+                .then((data) => navigateToResultTournament(data.id))
+                .catch((error) => {
+                    console.error("There was an error!", error);
+                });
+        }
+    }, [podiumList]);
 
     const handlePreparingListSR = (rival) => {
-        setPreparingListSR((prevState) => ({
+        setSecondRoundList((prevState) => ({
             rivals: [...prevState.rivals, rival],
         }));
     };
 
     const handlePreparingListTR = (rival) => {
-        setPreparingListTR((prevState) => ({
+        setThirdRoundList((prevState) => ({
             rivals: [...prevState.rivals, rival],
         }));
     };
 
+    const handlePreparingListSmallFinal = () => {
+        secondRound.challenges.forEach((c) => {
+            c.rivals.forEach((r) => {
+                if (r.lose === true) {
+                    setSmallFinalList((prevState) => ({
+                        rivals: [
+                            ...prevState.rivals,
+                            { name: r.name, won: false, lose: false },
+                        ],
+                    }));
+                }
+            });
+        });
+    };
+
     const handleChallengePlayedFR = (index, name) => {
         setFirstRound({
-            ...firstRound,
             challenges: firstRound.challenges.map((value, i) => {
                 if (i === index) {
                     return {
                         rivals: value.rivals.map((r) =>
-                            r.name === name ? { ...r, won: true } : r
+                            r.name === name
+                                ? { ...r, won: true }
+                                : { ...r, lose: true }
                         ),
                         played: true,
                     };
@@ -122,7 +184,9 @@ export function TournamentScheme() {
                 if (i === index) {
                     return {
                         rivals: value.rivals.map((r) =>
-                            r.name === name ? { ...r, won: true } : r
+                            r.name === name
+                                ? { ...r, won: true }
+                                : { ...r, lose: true }
                         ),
                         played: true,
                     };
@@ -132,8 +196,72 @@ export function TournamentScheme() {
         });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleFinalChallengesPlayed = (name, round) => {
+        if (round === "FR") {
+            setThirdRound({
+                challenges: thirdRound.challenges.map((value) => {
+                    return {
+                        rivals: value.rivals.map((r) =>
+                            r.name === name
+                                ? { ...r, won: true }
+                                : { ...r, lose: true }
+                        ),
+                        played: true,
+                    };
+                }),
+            });
+        } else {
+            setSmallFinalRound({
+                challenges: smallFinalRound.challenges.map((value) => {
+                    return {
+                        rivals: value.rivals.map((r) =>
+                            r.name === name
+                                ? { ...r, won: true }
+                                : { ...r, lose: true }
+                        ),
+                        played: true,
+                    };
+                }),
+            });
+        }
+    };
+
+    const handlePodiumList = (name, round) => {
+        if (round === "FR") {
+            thirdRound.challenges.forEach((c) => {
+                c.rivals.forEach((r) => {
+                    if (r.name === name) {
+                        setPodiumList((prevState) => ({
+                            first: name,
+                            second: prevState.second,
+                            third: prevState.third,
+                        }));
+                    } else {
+                        setPodiumList((prevState) => ({
+                            first: prevState.first,
+                            second: r.name,
+                            third: prevState.third,
+                        }));
+                    }
+                });
+            });
+        } else {
+            smallFinalRound.challenges.forEach((c) => {
+                c.rivals.forEach((r) => {
+                    if (r.name === name) {
+                        setPodiumList((prevState) => ({
+                            first: prevState.first,
+                            second: prevState.second,
+                            third: name,
+                        }));
+                    }
+                });
+            });
+        }
+    };
+
+    const navigateToResultTournament = (id) => {
+        navigate("/complete/tournament/" + id);
     };
 
     return (
@@ -142,7 +270,6 @@ export function TournamentScheme() {
             sx={{ display: "flex", flexWrap: "wrap", marginTop: "3em" }}
             noValidate
             autoComplete="off"
-            onSubmit={handleSubmit}
         >
             <Grid container>
                 <Grid
@@ -168,16 +295,13 @@ export function TournamentScheme() {
                                     aria-label="button group"
                                     disabled={v.played}
                                     sx={{
-                                        backgroundColor: r.won ? "green" : "",
-                                        opacity: r.won ? "0.2" : "1",
+                                        opacity: r.lose ? "0.5" : "1",
                                         marginBottom: "0.75rem",
                                     }}
                                 >
                                     <TextField
-                                        fullWidth
                                         disabled
                                         label="Player"
-                                        color="secondary"
                                         value={r.name}
                                     />
                                     <Button
@@ -219,16 +343,13 @@ export function TournamentScheme() {
                                     aria-label="button group"
                                     disabled={v.played}
                                     sx={{
-                                        backgroundColor: r.won ? "green" : "",
-                                        opacity: r.won ? "0.2" : "1",
+                                        opacity: r.lose ? "0.5" : "1",
                                         marginBottom: "0.75rem",
                                     }}
                                 >
                                     <TextField
-                                        fullWidth
                                         disabled
                                         label="Player"
-                                        color="secondary"
                                         value={r.name}
                                     />
                                     <Button
@@ -252,11 +373,69 @@ export function TournamentScheme() {
                     container
                     item
                     xs={4}
+                    sx={{ marginTop: "16em" }}
                     direction="column"
                     justifyContent="center"
                     rowGap={{ xs: 2 }}
                 >
+                    <Typography
+                        gutterBottom
+                        variant="h5"
+                        component="div"
+                        color="secondary"
+                    >
+                        {thirdRound.challenges.length > 0 ? "GRAND FINAL" : ""}
+                    </Typography>
                     {thirdRound.challenges.map((v, index) => (
+                        <Grid
+                            item
+                            xs={1}
+                            key={"s" + index}
+                            sx={{ marginBottom: "6rem" }}
+                        >
+                            {v.rivals.map((r, i) => (
+                                <ButtonGroup
+                                    key={i}
+                                    variant="contained"
+                                    aria-label="button group"
+                                    disabled={v.played}
+                                    sx={{
+                                        opacity: r.lose ? "0.5" : "1",
+                                        marginBottom: "0.75rem",
+                                    }}
+                                >
+                                    <TextField
+                                        disabled
+                                        label="Player"
+                                        value={r.name}
+                                    />
+                                    <Button
+                                        color="secondary"
+                                        onClick={() => {
+                                            handleFinalChallengesPlayed(
+                                                r.name,
+                                                "FR"
+                                            );
+                                            handlePodiumList(r.name, "FR");
+                                        }}
+                                    >
+                                        W
+                                    </Button>
+                                </ButtonGroup>
+                            ))}
+                        </Grid>
+                    ))}
+                    <Typography
+                        gutterBottom
+                        variant="h6"
+                        component="div"
+                        color="secondary"
+                    >
+                        {smallFinalRound.challenges.length > 0
+                            ? "SMALL FINAL"
+                            : ""}
+                    </Typography>
+                    {smallFinalRound.challenges.map((v, index) => (
                         <Grid
                             item
                             xs={1}
@@ -270,26 +449,23 @@ export function TournamentScheme() {
                                     aria-label="button group"
                                     disabled={v.played}
                                     sx={{
-                                        backgroundColor: r.won ? "green" : "",
-                                        opacity: r.won ? "0.2" : "1",
+                                        opacity: r.lose ? "0.5" : "1",
                                         marginBottom: "0.75rem",
                                     }}
                                 >
                                     <TextField
-                                        fullWidth
                                         disabled
                                         label="Player"
-                                        color="secondary"
                                         value={r.name}
                                     />
                                     <Button
                                         color="secondary"
                                         onClick={() => {
-                                            // handlePreparingListTR(r);
-                                            // handleChallengePlayedSR(
-                                            //     index,
-                                            //     r.name
-                                            // );
+                                            handleFinalChallengesPlayed(
+                                                r.name,
+                                                "SFR"
+                                            );
+                                            handlePodiumList(r.name, "SFR");
                                         }}
                                     >
                                         W
@@ -300,15 +476,6 @@ export function TournamentScheme() {
                     ))}
                 </Grid>
             </Grid>
-
-            <Button
-                type="submit"
-                variant="contained"
-                color="secondary"
-                sx={{ marginLeft: "50%" }}
-            >
-                SUBMIT
-            </Button>
         </Box>
     );
 }
