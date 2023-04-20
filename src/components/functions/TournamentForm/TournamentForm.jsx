@@ -3,15 +3,15 @@ import { Box, Button, Grid, MenuItem } from "@mui/material";
 import { TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const sizes = [4, 8, 16];
+const sizes = [8]; //FIXME
 const initValues = {
     title: "",
-    game: "Chess",
-    players: [...Array(4).fill("")],
+    game: "Chess", //FIXME
+    players: [...Array(8).fill("")],
 };
 
 export function TournamentForm() {
-    const [size, setSize] = useState(4);
+    const [size, setSize] = useState(8);
     const [tournament, setTournament] = useState(initValues);
     const navigate = useNavigate();
 
@@ -51,7 +51,7 @@ export function TournamentForm() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 title: tournament.title,
-                game: tournament.game,
+                game: tournament.game, //FIXME
                 players: tournament.players,
             }),
         };
@@ -64,7 +64,7 @@ export function TournamentForm() {
     };
 
     const navigateToScheme = (id) => {
-        navigate("/ongoing-tournament/" + id);
+        navigate("/ongoing/tournament/" + id);
     };
 
     return (
@@ -80,9 +80,9 @@ export function TournamentForm() {
                 justifyContent="center"
                 alignItems="center"
                 direction="row"
-                spacing={{ xs: 2, md: 3 }}
+                spacing={{ xs: 1, md: 3 }}
             >
-                <Grid item xs={6}>
+                <Grid item xs={8} sm={6}>
                     <TextField
                         fullWidth
                         required
@@ -94,7 +94,7 @@ export function TournamentForm() {
                         onChange={handleTitleInputChange}
                     />
                 </Grid>
-                <Grid item xs={2}>
+                <Grid item xs={4} sm={2}>
                     <TextField
                         select
                         fullWidth
@@ -112,9 +112,9 @@ export function TournamentForm() {
                     </TextField>
                 </Grid>
             </Grid>
-            <Grid container spacing={{ xs: 2 }} sx={{ padding: "3em" }}>
+            <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ padding: "3em" }}>
                 {tournament.players.map((v, index) => (
-                    <Grid item xs={3} key={index}>
+                    <Grid item xs={12} sm={3} key={index}>
                         <TextField
                             fullWidth
                             required

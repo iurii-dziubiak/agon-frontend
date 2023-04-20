@@ -47,8 +47,6 @@ export function TournamentScheme() {
     const navigate = useNavigate();
     const params = useParams();
 
-    // console.log(podiumList);
-
     useEffect(() => {
         fetch(`http://localhost:8088/api/ongoing/tournament/${params.id}`)
             .then((response) => response.json())
@@ -126,7 +124,7 @@ export function TournamentScheme() {
             };
             fetch("http://localhost:8088/api/podium", requestOptions)
                 .then((response) => response.json())
-                .then((data) => navigateToResultTournament(data.id))
+                .then((id) => navigateToResultTournament(id))
                 .catch((error) => {
                     console.error("There was an error!", error);
                 });
@@ -271,14 +269,14 @@ export function TournamentScheme() {
             noValidate
             autoComplete="off"
         >
-            <Grid container>
+            <Grid container spacing={{ xs: 1 }}>
                 <Grid
                     container
                     item
                     xs={4}
                     direction="column"
                     justifyContent="center"
-                    rowGap={{ xs: 2 }}
+                    rowGap={{ xs: 1, sm: 2 }}
                     wrap="nowrap"
                 >
                     {firstRound.challenges.map((v, index) => (
