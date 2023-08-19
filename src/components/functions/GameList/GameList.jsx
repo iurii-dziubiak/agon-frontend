@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardActionArea, CardMedia, Grid } from "@mui/material";
+import { useGameContext } from "../../../context/GameContext";
 
 const gridStyle = {
     minHeight: "85vh",
@@ -9,16 +10,17 @@ const gridStyle = {
 export function GameList() {
     const [data, setData] = useState([]);
     const navigate = useNavigate();
+    const { setGame, clearGame } = useGameContext();
 
     useEffect(() => {
+        clearGame();
         fetch("http://localhost:8088/api/games")
             .then((response) => response.json())
             .then((result) => setData(result));
     }, []);
 
     const navigateToCreateTournament = (game) => {
-        //FIXME set game name
-        console.log(game);
+        setGame({ name: game.name, bgImage: "bg-" + game.image });
         navigate("/tournament");
     };
 
@@ -36,9 +38,7 @@ export function GameList() {
                 <Grid item xs={1} sm={3} md={3} key={index}>
                     <Card>
                         <CardActionArea
-                            onClick={() =>
-                                navigateToCreateTournament(game.name)
-                            }
+                            onClick={() => navigateToCreateTournament(game)}
                         >
                             <CardMedia
                                 component="img"

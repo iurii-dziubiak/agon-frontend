@@ -2,17 +2,18 @@ import { useState } from "react";
 import { Box, Button, Grid, MenuItem } from "@mui/material";
 import { TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useGameContext } from "../../../context/GameContext";
 
 const sizes = [8]; //FIXME
-const initValues = {
-    title: "",
-    game: "Chess", //FIXME
-    players: [...Array(8).fill("")],
-};
 
 export function TournamentForm() {
     const [size, setSize] = useState(8);
-    const [tournament, setTournament] = useState(initValues);
+    const { game } = useGameContext();
+    const [tournament, setTournament] = useState({
+        title: "",
+        game: game.name,
+        players: [...Array(8).fill("")],
+    });
     const navigate = useNavigate();
 
     const handleTournamentSizeChange = (event) => {
