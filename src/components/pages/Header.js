@@ -2,24 +2,16 @@ import {
     AppBar,
     Box,
     Button,
-    FormControlLabel,
-    FormGroup,
     IconButton,
     Menu,
     MenuItem,
-    Switch,
     Toolbar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import React, { useState } from "react";
 
 const Header = () => {
-    const [darkMode, setDarkMode] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
-
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setDarkMode(event.target.checked);
-    };
 
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -30,23 +22,8 @@ const Header = () => {
     };
 
     return (
-        <Box sx={{ flexGrow: 1 }}>
-            <FormGroup>
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={darkMode}
-                            onChange={handleChange}
-                            aria-label="dark mode switch"
-                            color="secondary"
-                        />
-                    }
-                    // label={darkMode
-                    //     ? <Typography component="small" color="primary.contrastText">ON</Typography>
-                    //     : <Typography component="small">OFF</Typography>}
-                />
-            </FormGroup>
-            <AppBar position="static" color="secondary">
+        <Box sx={{ flexGrow: 1, marginTop: "2em" }}>
+            <AppBar position="static">
                 <Toolbar>
                     <IconButton
                         size="large"
@@ -75,9 +52,7 @@ const Header = () => {
                         open={Boolean(anchorEl)}
                         onClose={handleClose}
                     >
-                        <MenuItem color="primary" onClick={handleClose}>
-                            About
-                        </MenuItem>
+                        <MenuItem onClick={handleClose}>About</MenuItem>
                         <MenuItem onClick={handleClose}>Tournaments</MenuItem>
                     </Menu>
                     <Button sx={{ color: "white" }} size="large" href="/">
